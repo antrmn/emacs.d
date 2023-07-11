@@ -16,7 +16,6 @@
 (load custom-file t)
 
 (set-default-coding-systems 'utf-8)
-
 (setopt load-prefer-newer t)
 ;;; Package and use-package
 (setopt use-package-always-ensure t
@@ -49,15 +48,23 @@
 (require 'server)
 (unless (server-running-p)
   (server-start))
+
 ;;; Completion
 (setopt completion-category-defaults nil
         completion-category-overrides '((file (styles . (partial-completion))))
         completion-cycle-threshold 3
         completions-detailed t
         read-extended-command-predicate #'command-completion-default-include-p)
-
+(use-package cape) ;builtin
+(use-package cape-yasnippet
+  :vc (:fetcher github :repo elken/cape-yasnippet))
 (add-to-list 'completion-at-point-functions #'cape-file)
 (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+
+;;; Snippets
+(use-package yasnippet-snippets)
+(use-package yasnippet-classic-snippets)
+(use-package yasnippet)
 
 ;;; Minibuffer
 
@@ -90,7 +97,16 @@
               ("M-DEL" . vertico-directory-delete-word))
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 
+;; Add annotations to completion candidates in the minibuffer
+(use-package marginalia
+  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
+  :bind (:map minibuffer-local-map
+  ("M-a" . marginalia-cycle))
+  :custom
+(marginalia-mode t))
+
 (require 'nano-theme) ; Load nano-theme in order to set some face attributes down here. TODO remove
+
 ;; Set orderless as default completion style (with basic as fallback)
 (use-package orderless
   :demand t
@@ -115,12 +131,7 @@
 ;; Partial-completion: ~/.c/ema/s-l/as.el -> ~/.config/emacs/site-lisp/asoc.el
 (setopt completion-category-overrides '((file (styles basic partial-completion))))
 
-(use-package marginalia
-  ;; Either bind `marginalia-cycle` globally or only in the minibuffer
-  :bind (("M-a" . marginalia-cycle)
-         :map minibuffer-local-map
-         ("M-a" . marginalia-cycle))
-  :custom (marginalia-mode t))
+
 
 (use-package consult
   :bind (;; C-c bindings in `mode-specific-map'
@@ -194,39 +205,9 @@
 
 ;;; Code Completion
 
+(setopt completion-in-region-function #'consult-completion-in-region)
 
 ;;TODO cape
-
-;; Corfu is cool, but consult-completion-in-region is way cooler.
-;; I could use corfu just for a quick completion (with corfu-auto t and simple completion style)
-;; There are also some problems with previewing. The first candidate doesn't get a preview
-;; Update: consult-completion-in-region doesn't work well with eglot.
-;; May find a way to get corfu to behave similarly to consult
-;; TODO customize it and re-enable
-(use-package corfu
-  :disabled t
-  :demand t
-  :custom
-  (global-corfu-mode t)
-  (corfu-cycle t)                ; Enable cycling for `corfu-next/previous'
-  ;; (corfu-quit-at-boundary nil)   ; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ; Never quit, even if there is no match
-  (corfu-preview-current t)      ; Preview current candidate preview (Confirm with RET)
-  (corfu-scroll-margin 5)        ; Use scroll margin
-  (corfu-history-mode t)         ; Sort also by last used
-  (corfu-popupinfo-mode t)       ; Show candidate description in posframe
-  (corfu-echo-mode t)            ; Show candidate description in echo area
-  :bind
-  (:map corfu-map
-        ;; corfu-info-documentation and corfu-info-location by default M-g, M-h
-        ;;TODO see corfu-popupinfo (both auto and manual)
-        ;;("TAB" .  corfu-next)
-        ;;([tab] . corfu-next)
-        ;;("S-TAB" . corfu-previous)
-        ;;([backtab] . corfu-previous)
-        ("SPC" . corfu-insert-separator)))
-
-
 
 ;;; Scroll
 (setopt scroll-conservatively 101
@@ -236,6 +217,7 @@
         auto-window-vscroll nil
         fast-but-imprecise-scrolling t)
 ;;; Regexp builder search
+(use-package xr) ;;convert regexp to rx
 (require 'misc-utils)
 (with-eval-after-load 're-builder
     (define-key reb-mode-map (kbd "RET") #'reb-replace-regexp)
@@ -254,12 +236,12 @@
         inhibit-startup-screen nil
         default-major-mode 'text-mode)
 ;;; Modes that IMO should be on by default
-(setopt context-menu-mode t)
-(setopt repeat-mode t)
 (setopt global-so-long-mode t
         delete-selection-mode t)
 
 ;;; Where to put this!?
+(setq create-lockfiles nil)
+
 (setopt visual-line-mode t
         fill-column 80)
 
@@ -292,9 +274,7 @@
         view-read-only t
         visible-bell nil)
 
-(use-package yasnippet-snippets)
-(use-package yasnippet-classic-snippets)
-(use-package yasnippet)
+
 (use-package literate-calc-mode)
 (use-package crux) ;;utility functions
 (use-package no-littering)
@@ -302,32 +282,7 @@
   :custom (highlight-indent-guides-method 'character))
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
-(use-package which-key
-  :custom
-  (which-key-mode t))
 
-
-
-
-
-
-(use-package embark
-  :bind
-  (("C-." . embark-act)
-   ("M-." . embark-dwim)
-   ("C-h B" . embark-bindings))
-  :init
-  (setq prefix-help-command #'embark-prefix-help-command)
-  :config
-  ;; Hide the mode line of the Embark live/completions buffers
-  (add-to-list 'display-buffer-alist
-               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
-                 nil
-                 (window-parameters (mode-line-format . none)))))
-
-(use-package embark-consult
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
 
 
 
@@ -341,8 +296,9 @@
   :hook (markdown-mode . pandoc-mode))
 
 ;; Cool package that automatically convert Latex macros to
-;; unicode characters. Use with C-\
+ ;; unicode characters. Use with C-\
 (use-package math-symbols)
+
 
 ;;TODO doc tools/ doc toc tools?
 (use-package doc-toc)
@@ -351,6 +307,8 @@
   (pdf-view-display-size 'fit-height)
   :config
   (pdf-tools-install))
+
+(use-package nov)
 
 (use-package aggressive-indent
   :custom
@@ -362,7 +320,7 @@
 
 (use-package vundo)
 
-(use-package winner)
+
 
 
 
@@ -372,15 +330,13 @@
   (setq hl-todo-keyword-faces
 	    '(("TODO"   . "#FF6F00"))))
 
-(setq create-lockfiles nil)
 
 
 
 
 
-(use-package cape) ;builtin
-(use-package cape-yasnippet
-  :vc (:fetcher github :repo elken/cape-yasnippet))
+
+
 
 
 (use-package denote)
@@ -392,9 +348,9 @@
 
 
 
-(use-package xr) ;;convert regexp to rx
 
-(use-package nov)
+
+
 
 (use-package dired-toggle-sudo)
 (use-package dired-git-info)
@@ -419,6 +375,7 @@
 (use-package on-screen
   :custom
   (on-screen-global-mode t))
+
 
 ;;; Save history
 (setopt savehist-mode t)
@@ -471,6 +428,7 @@
 (use-package windresize)
 (use-package switchy-window)
 (use-package other-frame-window)
+(use-package winner)
 
 ;;; Garbage collector
 ;; Temporarily disabled in order to use emacs-gc-stats
@@ -499,7 +457,7 @@
 
 ;;; Version control
 (setopt version-control t
-        vc-make-backup-files t)
+         vc-make-backup-files t)
 
 (use-package magit
   :demand t)
@@ -579,8 +537,68 @@
 
 
 ;;; Keybindings
-(require 'hydra "hydra" :no-error)
+(setopt context-menu-mode t)
+(setopt repeat-mode t)
 
+
+(use-package which-key
+  :custom
+  (which-key-mode t)
+  (which-key-show-early-on-C-h 'prompt)
+  :bind (:map which-key-C-h-map
+              ("m"   . my/which-key-call-embark-bindings-in-keymap)
+              ("C-m" . my/which-key-call-embark-bindings-in-keymap))
+  :config
+  (advice-patch #'which-key-C-h-dispatch
+                '(read-key (concat prompt " m" which-key-separator "show in minibuffer"))
+                '(read-key prompt)))
+
+(defun my/which-key-call-embark-bindings-in-keymap (&optional _)
+  "Call the command `embark-bindings-in-keymap' from `which-key-C-h-map'.
+This function is a copy of `which-key-show-standard-help'"
+  (interactive)
+  (let ((which-key-inhibit t)
+        (popup-showing (which-key--popup-showing-p)))
+    (which-key--hide-popup-ignore-command)
+    ;; If prefix is active, show bindings with that prefix.
+    ;; If there is no prefix (calling which-key-show-major-mode or which-key-show-top-level)
+    ;; then bindings from global-map are shown
+    (let ((keymap (if (string-empty-p (which-key--current-key-string))
+                      global-map
+                    (key-binding (kbd (which-key--current-key-string)) 'accept-default))))
+      (embark-bindings-in-keymap keymap))))
+
+(defun my/which-key--before-C-h-dispatch ()
+  (when (and (not (which-key--popup-showing-p))
+             (eq which-key-show-early-on-C-h 'prompt))
+    (which-key--create-buffer-and-show (kbd (which-key--current-key-string)))
+    (setq unread-command-events (listify-key-sequence
+                                 (kbd (which-key--current-key-string))))))
+(advice-add 'which-key-C-h-dispatch :before #'my/which-key--before-C-h-dispatch)
+
+(use-package embark
+  ;;TODO export, act all, collect, live, become (last one is incldued in C-.)
+  :bind
+  (("C-." . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings))
+  :custom-face
+  (embark-target ((t (:inherit (nano-subtle)))))
+  :config
+  ;; Hide the mode line of the Embark live/completions buffers
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+  ;; Same as above but for Embark actions TODO unify
+(add-to-list 'display-buffer-alist
+               '("\\*Embark Actions\\*"
+                 nil
+                 (window-parameters (mode-line-format . none)))))
+
+(use-package embark-consult
+  :hook
+  (embark-collect-mode . consult-preview-at-point-mode))
 
 ;;; Eye candy
 ;; TODO modern fringe
@@ -644,12 +662,6 @@
 (use-package all-the-icons-dired
   :hook (dired-mode . all-the-icons-dired-mode))
 
-(use-package kind-icon
-  :after corfu
-  :custom
-  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly
-  :config
-  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 ;;;; Modeline
 (use-package minions
   :custom
