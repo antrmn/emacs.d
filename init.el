@@ -437,11 +437,6 @@
 ;;   :custom
 ;;   (gcmh-mode t))
 
-;; https://www.reddit.com/r/emacs/comments/14dej62/please_help_collecting_statistics_to_optimize/
-(require 'emacs-gc-stats)
-(setq emacs-gc-stats-gc-defaults 'emacs-defaults) ; optional
-(emacs-gc-stats-mode +1)
-
 ;;; Eglot
 (use-package eglot
   :ensure t
@@ -540,10 +535,10 @@
 (setopt context-menu-mode t)
 (setopt repeat-mode t)
 
-
+(use-package advice-patch)
 (use-package which-key
   :custom
-  (which-key-mode t)
+  (which-key-mode t)s
   (which-key-show-early-on-C-h 'prompt)
   :bind (:map which-key-C-h-map
               ("m"   . my/which-key-call-embark-bindings-in-keymap)
@@ -783,7 +778,7 @@ This function is a copy of `which-key-show-standard-help'"
   (require 'org-inlinetask)
   (require 'yasnippet)
   (require 'org-lazy-babel)
-  (org-download-enable)
+  ;(org-download-enable)
   :hook
   (org-mode . olivetti-mode)
   (org-mode . org-fragtog-mode)
