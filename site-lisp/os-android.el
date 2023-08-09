@@ -15,7 +15,7 @@
           (lambda ()
             (tool-bar-mode 1)
             (menu-bar-mode 1)
-            (set-frame-parameter nil 'tool-bar-position-bottom)
+            (set-frame-parameter nil 'tool-bar-position 'bottom)
             (modifier-bar-mode 1)
             (server-start)
             (define-key input-decode-map [volume-down] #'tool-bar-event-apply-control-modifier)
