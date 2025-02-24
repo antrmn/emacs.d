@@ -32,7 +32,6 @@
 ;; Partial-completion: ~/.c/ema/s-l/as.el -> ~/.config/emacs/site-lisp/asoc.el
 (setopt completion-category-overrides '((file (styles basic partial-completion))))
 
-(setopt completion-in-region-function #'consult-completion-in-region)
 
 ;; Enable automatic preview at point in the *Completions* buffer. This is
 ;; relevant when you use the default completion UI.

@@ -1,11 +1,22 @@
 ;;; init.el --- My Init File  -*- lexical-binding: t; -*-
 ;;; Commentary:
 ;;; Code:
+(use-package org :load-path "~/.config/emacs/elpa/org-mode/lisp/")
 (setopt user-full-name "Antonio Romano"
         user-mail-address (string-join
                            (nreverse '("me" "." "pm" "@" "ntnrmn"))))
 
 (add-to-list 'load-path (expand-file-name "site-lisp" user-emacs-directory))
+
+;;scratch
+
+(setopt inhibit-startup-message t)
+(setopt initial-scratch-message nil)
+(setopt desktop-save-mode t)
+
+(require 'server)
+(unless (server-running-p) (server-start))
+
 
 (when (eq system-type 'android)
   (require 'os-android))
@@ -17,18 +28,12 @@
 
 (setopt load-prefer-newer t)
 
-;;; Package Manager
-(setopt package-quickstart t
-        package-archives '(("melpa" . "https://melpa.org/packages/")
-                           ("gnu" . "https://elpa.gnu.org/packages/")
-                           ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
-(require 'init-package-list)
+;;package was here TODO
 
 ;;; Macros - syntax sugar
 (require 'doom-lib)
 
 ;;; Modules
-(require 'no-littering)
 (require 'init-essential)
 (require 'init-help)
 (require 'init-completion)
@@ -40,16 +45,17 @@
 
 
 ;;; Major modes
-;; TODO TODO TODO (require 'init-gnus)
+
 (require 'conf-major-modes)
-(require 'conf-org)
+(require 'conf-org2)
 
 ;;; Plugins
 (require 'org-lazy-babel)
 ;; TODO TODO TODO (require 'which-key-patch)
 (require 'misc-utils)
 
-;(load custom-file 'noerror 'nomessage)
+(load custom-file 'noerror 'nomessage)
 ;;; End
 (provide 'init)
 ;;init.el ends here
+(put 'narrow-to-region 'disabled nil)

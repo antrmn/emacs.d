@@ -50,16 +50,16 @@
 ;;      Particularly, define some repeatable keymap to move subtrees around
 ;; TODO Make outline-minor-mode recognizable from imenu
 
-(setopt outline-minor-mode-cycle t
-	outline-mode-cycle-filter nil)
+;; (setopt outline-minor-mode-cycle t
+;; 	outline-mode-cycle-filter nil)
 
-(after! outline
-  (advice-add 'outline-flag-region :after 'backline-update))
+;; (after! outline
+;;   (advice-add 'outline-flag-region :after 'backline-update))
 
-(add-hook 'outline-minor-mode-hook #'outline-minor-faces-mode)
+;; (add-hook 'outline-minor-mode-hook #'outline-minor-faces-mode)
 
-(require 'misc-utils) ;;just to get hs-toggle-hiding. remove
-(bind-keys ("C-c h" . hs-toggle-hiding))
+;; (require 'misc-utils) ;;just to get hs-toggle-hiding. remove
+;; (bind-keys ("C-c h" . hs-toggle-hiding))
 
 ;;;; Undo/redo
 (bind-keys ("C-z" . vundo))
@@ -78,8 +78,6 @@
       xref-show-definitions-function #'consult-xref)
 
 
-;;;; Line numbers
-(setopt display-line-numbers-type 'relative)
 
 
 ;;; Registers
@@ -187,10 +185,10 @@
 (global-set-key [remap keyboard-quit] #'keyboard-quit-context+)
 
 ;;; Spell checking
-(setopt ispell-dictionary "it_IT,en_US")
-(after! ispell
-  (ispell-set-spellchecker-params)
-  (ispell-hunspell-add-multi-dic "it_IT,en_US"))
+;; (setopt ispell-dictionary "it_IT,en_US")
+;; (after! ispell
+;;   (ispell-set-spellchecker-params)
+;;   (ispell-hunspell-add-multi-dic "it_IT,en_US"))
 
 (after! flyspell
   (advice-add 'make-flyspell-overlay :filter-return #'my/remove-mouse-face))
@@ -212,8 +210,7 @@
 				diff-hl-margin-mode
 				diff-hl-show-hunk-mouse-mode))
 
-;; Eglot - LSP client
-(setopt eglot-autoshutdown t)
+
 
 ;; Eldoc
 ;; Never attempt to resize echo area when showing doc.
@@ -223,6 +220,17 @@
 	;; TODO bind eldoc-box-help-at-point and eldoc-doc-buffer
         eldoc-box-only-multi-line t
         eldoc-box-hover-at-point-mode t)
+
+;;;; TODO tresit-auto and tree sitter
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
+
+(setopt global-treesit-fold-mode t
+        global-treesit-fold-indicators-mode t)
 
 ;;; Global binding
 
