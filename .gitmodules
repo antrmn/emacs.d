@@ -1,0 +1,3 @@
+[submodule "user-lisp/libadwaita-theme"]
+	path = user-lisp/libadwaita-theme
+	url = git@github.com:antrmn/libadwaita-theme.el.git
