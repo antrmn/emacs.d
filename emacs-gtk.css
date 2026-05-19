@@ -1,0 +1,72 @@
+headerbar{
+    background-image: none;
+    background-color: white;
+    border: none;
+}
+
+headerbar:backdrop{
+    background-color: #FAFAFA; 
+}
+
+decoration {
+    border-radius: 12px;
+}
+
+window{
+    border-radius: 0px 0px 12px 12px;
+}
+
+#pane > box:last-child{
+    margin-bottom: 12px;
+}
+
+#pane > toolbar:last-child{
+    border-radius: 0px 0px 12px 12px;
+    box-shadow: 0px 1px 1px rgba(0,0,0,0.05) inset;
+    background-color: white;
+}
+
+window{
+   background-color: #FAFAFA;
+}
+
+#pane > box > toolbar:first-child, #pane > box > toolbar:last-child{
+    box-shadow: -1px 0 0 0 rgba(0,0,0,0.036) inset;
+    background-color: white;
+}
+
+/* SCROLL BAR */
+
+
+scrollbar.vertical {
+    border: 0;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    margin-right: 1px;
+    background-color: rgba(0,0,0,0);
+}
+scrollbar.vertical trough {
+    border: 0;
+    min-width: 5px;
+    padding: 1px 0;
+
+}
+scrollbar.vertical slider {
+    border-radius: 5px;
+    border: 0;
+    min-width: 3px;
+
+}
+
+scrollbar.vertical:hover slider {
+    border-radius: 5px;
+    border: 0;
+    min-width: 5px;
+
+}
+
+scrollbar.vertical:hover{
+   background-color: #E9E9E9;
+   border-radius: 12px;
+
+}

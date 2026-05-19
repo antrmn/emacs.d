@@ -1,0 +1,9 @@
+*
+!user-lisp/
+!user-lisp/**/
+!init.el
+!emacs-gtk.css
+!.gitignore
+!user-lisp/**/*.el
+.user-lisp-autoloads.el
+
